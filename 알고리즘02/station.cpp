@@ -10,29 +10,38 @@ ofstream out("station.out");
 double DISTANCE;
 
 typedef struct _point_coord{
-    int x,y,z;
+    double x,y,z;
 } point_coord;
 
 point_coord A,B,P;
 
-double vector_length(point_coord point){
-    return pow((double)point.x,2)+pow((double)point.y,2)+pow((double)point.z,2);
+double distance_pq(point_coord p, point_coord q){
+    return sqrt(pow((p.x - q.x),2)+pow((p.y - q.y),2)+pow((p.z - q.z),2));
 }
 
-point_coord make_vector_pq(point_coord p, point_coord q){
+point_coord find_middle_point(point_coord p, point_coord q){
     point_coord temp;
-    temp.x = q.x - p.x;
-    temp.y = q.y - p.y;
-    temp.z = q.z - p.z;
+    temp.x = (p.x+q.x)/2;
+    temp.y = (p.y+q.y)/2;
+    temp.z = (p.z+q.z)/2;
     return temp;
 }
 
-point_coord cross_product(point_coord OM, point_coord ON){
-    point_coord temp;
-    temp.x = (OM.y*ON.z)-(OM.z*ON.y);
-    temp.y = (OM.z*ON.x)-(OM.x*ON.z);
-    temp.z = (OM.x*ON.y)-(OM.y*ON.x);
-    return  temp;
+void min_distance(point_coord m, point_coord n){
+    point_coord min_point1, min_point2;
+    point_coord middle_point = find_middle_point(m,n);
+    if(distance_pq(m,P)>distance_pq(n,P))
+        min_point1 = n;
+    else
+        min_point1 = m;
+    min_point2 = middle_point;
+
+    if(distance_pq(min_point1,P) == distance_pq(min_point2,P)){
+        DISTANCE = distance_pq(min_point1,P);
+    }
+    else{
+        min_distance(min_point1,min_point2);
+    }
 }
 
 void input_coord(point_coord* point){
@@ -48,18 +57,13 @@ void input(){
 }
 
 void solve(){
-    point_coord AP, AB;
-    point_coord APcrossAB;
-    AP = make_vector_pq(A,P);
-    AB = make_vector_pq(A,B);
-
-    APcrossAB = cross_product(AP, AB);
-    DISTANCE = sqrt(vector_length(APcrossAB)/vector_length(AB));
+    min_distance(A,B);
 }
 
 void output(){
     out << ceil(DISTANCE);
 }
+
 int main(){
     input();
     solve();

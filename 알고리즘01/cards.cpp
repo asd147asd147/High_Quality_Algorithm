@@ -3,7 +3,7 @@
 
 using namespace std;
 
-ifstream in("cards.in");
+ifstream in("cards.inp");
 ofstream out("cards.out");
 
 int MAX_NUM;
