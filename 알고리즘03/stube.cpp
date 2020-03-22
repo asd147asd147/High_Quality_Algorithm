@@ -5,10 +5,11 @@
 
 using namespace std;
 
-ifstream in("3.inp");
+ifstream in("test.inp");
 ofstream out("test.out");
 
-double DISTANCE;
+const double GAP = 0.00001;
+double DISTANCE = 1e9;
 
 typedef struct _point_coord{
     double x,y,z;
@@ -20,35 +21,38 @@ double distance_pq(point_coord p, point_coord q){
     return sqrt(pow((p.x - q.x),2)+pow((p.y - q.y),2)+pow((p.z - q.z),2));
 }
 
-point_coord find_middle_point(point_coord p, point_coord q){
-    point_coord temp;
-    temp.x = (p.x+q.x)/2;
-    temp.y = (p.y+q.y)/2;
-    temp.z = (p.z+q.z)/2;
-    return temp;
+point_coord find_point(point_coord p, point_coord q, double t){
+    point_coord middle;
+    middle.x = t*p.x + (1-t)*q.x;
+    middle.y = t*p.y + (1-t)*q.y;
+    middle.z = t*p.z + (1-t)*q.z;
+    return middle;
 }
 
-int equal_point(point_coord m, point_coord n){
-    if(ceil(m.x*100000)/100000 == ceil(n.x*100000)/100000 && ceil(m.y*100000)/100000 == ceil(n.y*100000)/100000 && ceil(m.z*100000)/100000 == ceil(n.z*100000)/100000)
-        return 1;
-    return 0;
-}
+point_coord min_point(point_coord lop, point_coord hip, point_coord q, double lo, double hi){
+    double t = (lo+hi)/2;
+    double tohi = t + GAP;
+    double tolo = t - GAP;
+    point_coord temp1 = find_point(lop,hip,t);
+    if(lo + GAP >= hi) {
+        return temp1;
+    }
+    point_coord temp2 = find_point(lop,hip,tolo);
+    double lodis = distance_pq(temp2,q);
+    DISTANCE = min(DISTANCE,lodis);
 
-point_coord min_distance(point_coord p, point_coord q, point_coord r){
-    point_coord min_point1, min_point2;
-    point_coord middle_point = find_middle_point(p,q);
-    if(distance_pq(p,r)>distance_pq(q,r))
-        min_point1 = q;
-    else
-        min_point1 = p;
-    min_point2 = middle_point;
-    if(equal_point(min_point1,min_point2)){
-        return min_point2;
+    point_coord temp3 = find_point(lop,hip,tohi);
+    double hidis = distance_pq(temp3,q);
+    DISTANCE = min(DISTANCE,hidis);
+
+    if(lodis>hidis){
+        return min_point(lop,hip,q,t,hi);
     }
     else{
-        return min_distance(min_point1, min_point2, r);     t t
+        return min_point(lop,hip,q,lo,t);
     }
 }
+
 void input_coord(point_coord* point){
     in >> point->x;
     in >> point->y;
@@ -63,39 +67,15 @@ void read_Data(){
 }
 
 void solve(){
-    point_coord pre_AB, pre_CD;
-    pre_CD = min_distance(C,D,A);
-    pre_AB = min_distance(A,B,pre_CD);
-    while(1){
-        point_coord cur_CD, cur_AB;
-        cur_CD = min_distance(C,D,pre_AB);
-        cur_AB = min_distance(A,B,pre_CD);
-
-        cout << "pre_CD : " << pre_CD.x <<endl;
-        cout << "pre_CD : " << pre_CD.y <<endl;
-        cout << "pre_CD : " << pre_CD.z <<endl;
-        cout <<endl;
-        cout << "pre_AB : " << pre_AB.x <<endl;
-        cout << "pre_AB : " << pre_AB.y <<endl;
-        cout << "pre_AB : " << pre_AB.z <<endl;
-        cout <<endl;
-
-        if(equal_point(pre_AB,cur_AB) && equal_point(pre_CD,cur_CD)){
-            break;
-        }
-        pre_CD = cur_CD;
-        pre_AB = cur_AB;
-    }
-    if(equal_point(pre_AB,pre_CD)){
-        DISTANCE = 0;
-    }
-    else{
-        DISTANCE = distance_pq(pre_CD,pre_AB);
+    point_coord test = min_point(A,B,C,0,1);
+    for(int i = 0; i < 10; ++i){
+        test = min_point(C,D,test,0,1);
+        test = min_point(A,B,test,0,1);
     }
 }
 
 void output(){
-
+    cout << endl;
     cout << DISTANCE << endl;
     cout << ceil(DISTANCE);
 }
