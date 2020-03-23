@@ -5,8 +5,8 @@
 
 using namespace std;
 
-ifstream in("test.inp");
-ofstream out("test.out");
+ifstream in("stube.inp");
+ofstream out("stube.out");
 
 const double GAP = 0.00001;
 double DISTANCE = 1e9;
@@ -158,21 +158,54 @@ int check_vec(point_coord p, point_coord q){
     return 0;
 }
 
+int check_par(point_coord p, point_coord q, point_coord r){
+    if(p.x<= r.x && r.x <= q.x){
+        if(p.y <= r.y && r.y <= q.y){
+            if(p.z <= r.z && r.z <= q.z){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 int ccw(){
     point_coord vec_AB, vec_AC, vec_AD;
     vec_AB = make_vec(B,A);
     vec_AC = make_vec(C,A);
     vec_AD = make_vec(D,A);
     point_coord cross_AB_AC = cross_product(vec_AB,vec_AC);
+    if(cross_AB_AC.x == 0 && cross_AB_AC.y == 0 && cross_AB_AC.z == 0){
+        if(check_par(A,B,C)){
+            DISTANCE = 0;
+            return 1;
+        }
+    }
     point_coord cross_AB_AD = cross_product(vec_AB,vec_AD);
-
+    if(cross_AB_AD.x == 0 && cross_AB_AD.y == 0 && cross_AB_AD.z == 0){
+        if(check_par(A,B,D)){
+            DISTANCE = 0;
+            return 1;
+        }
+    }
     point_coord vec_CD, vec_CA, vec_CB;
     vec_CD = make_vec(D,C);
     vec_CA = make_vec(A,C);
     vec_CB = make_vec(B,C);
     point_coord cross_CD_CA = cross_product(vec_CD,vec_CA);
+    if(cross_CD_CA.x == 0 && cross_CD_CA.y == 0 && cross_CD_CA.z == 0){
+        if(check_par(C,D,A)){
+            DISTANCE = 0;
+            return 1;
+        }
+    }
     point_coord cross_CD_CB = cross_product(vec_CD,vec_CB);
-
+    if(cross_CD_CB.x == 0 && cross_CD_CB.y == 0 && cross_CD_CB.z == 0){
+        if(check_par(C,D,B)){
+            DISTANCE = 0;
+            return 1;
+        }
+    }
     if(check_vec(cross_AB_AC,cross_AB_AD) && check_vec(cross_CD_CA,cross_CD_CB)){
         DISTANCE = 0;
         return 1;
@@ -182,7 +215,6 @@ int ccw(){
 
 void solve(){
     if(ccw()){
-        cout << "call" <<endl;
         return;
     }
     point_coord min_AB, min_CD, temp_AB, temp_CD;
@@ -219,10 +251,9 @@ void solve(){
 }
 
 void output(){
-    cout << DISTANCE<<endl;
     if(DISTANCE < 4.999e-5)
         DISTANCE = 0;
-    cout << ceil(DISTANCE);
+    out << ceil(DISTANCE);
 }
 
 int main(){
