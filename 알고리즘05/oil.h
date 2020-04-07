@@ -20,10 +20,10 @@ void initial( ) {
     call_num    = 0;
 
     /* Sample Data 1 */
-    //Oil_sz      = 19;
-    //Oil_beg     =  2;
-    //Oil_end     = 11;
-    //call_limit  = 10;
+    Oil_sz      = 19;
+    Oil_beg     =  2;
+    Oil_end     = 11;
+    call_limit  = 12;
 
     /* Sample Data 2 */
 //    Oil_sz      = 1000;
@@ -32,10 +32,10 @@ void initial( ) {
 //    call_limit  =   30;
 
     /* Sample Data 3 */
-    Oil_sz      = 10000;
-    Oil_beg     =  1113;
-    Oil_end     =  1794;
-    call_limit  =    40;
+    //Oil_sz      = 10000;
+    //Oil_beg     =  1113;
+    //Oil_end     =  1794;
+    //call_limit  =    40;
 
     /* Sample Data 4 */
 //    Oil_sz      = 100000;

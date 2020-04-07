@@ -14,12 +14,15 @@ void find_oil(int b, int e, int flag){
         second = observe(m+1,e);
     }
     else if(flag == 1){
-        first = observe(b,m);
-        if(first == 1){
-            second = observe(m+1,e);
+        second = observe(m+1,e);
+        if(second == 0){
+            if(b == m)
+                first = 1;
+            else
+                first = observe(b,m);
         }
         else{
-            second = 0;
+            first = 1;
         }
     }
     else if(flag == 2){
@@ -34,7 +37,6 @@ void find_oil(int b, int e, int flag){
             second = 1;
         }
     }
-
     cout << b << " " << e <<endl;
     cout << "f" << first << endl;
     cout << "s" << second << endl;
