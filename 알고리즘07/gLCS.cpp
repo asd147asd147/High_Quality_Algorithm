@@ -49,7 +49,6 @@ void find_LCS(string t_s, int num, int t_i, int t_j, int (*DP)[501] ){
                 find_LCS(t_s+seq1[t_i-2],num-1,t_i-2,t_j-2,DP);
             }
         }
-
     }
 }
 
