@@ -8,8 +8,8 @@ using namespace std;
 
 //#define debug
 
-ifstream in("tube.inp");
-ofstream out("tube.out");
+ifstream in("detroit.inp");
+ofstream out("detroit.out");
 
 int L;
 int k;
