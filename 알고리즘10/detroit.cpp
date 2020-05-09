@@ -23,14 +23,15 @@ int main(){
     memset(col_data,0,sizeof(col_data));
     int topping;
     int pair_size = 0;
+    int i,j;
     position temp_position;
-    for(int i = 0; i < N; ++i){
-        for(int j = 0; j < N; ++j){
+    for(i = 0; i < N; ++i){
+        for(j = 0; j < N; ++j){
             in >> topping;
             if(topping){
                 topping = 1 << topping-1;
-                if(row_data[i] & topping || col_data[j] & topping){
-                    std::cout << 0;
+                if( (row_data[i] | col_data[j]) & topping){
+                    out << 0;
                     return 0;
                 }
                 else{
@@ -42,7 +43,7 @@ int main(){
             else{
                 temp_position.x = j;
                 temp_position.y = i;
-                position_pair[pair_size++] = temp_position;
+                position_pair[pair_size++] = {j,i};
             }
         }
     }
@@ -50,45 +51,54 @@ int main(){
         out << 1;
         return 0;
     }
-    int mask,m,n;
+    int mask = 1;
     int position_index = 0;
-    int init_m = position_pair[0].y, init_n = position_pair[0].x;
+    int m,n;
     int likelihood = 0;
     int max = 1 << N;
     int NUM = 0;
-    do{
+    init:
         m = position_pair[position_index].y;
         n = position_pair[position_index].x;
-
         likelihood = row_data[m] | col_data[n];
-        if(!pizza[m][n]){
-            mask = 1;
-        }
-        else{
+        if(pizza[m][n]){
             row_data[m] &= ~pizza[m][n];
             col_data[n] &= ~pizza[m][n];
             mask = pizza[m][n] << 1;
+            pizza[m][n] = 0;
         }
+        if(!(likelihood^0x1FF))
+            goto reset;
         for(; mask < max; mask <<= 1){
             if(std::bitset<9>(mask & likelihood) == 0){
                 pizza[m][n] = mask;
                 row_data[m] |= mask;
                 col_data[n] |= mask;
                 ++position_index;
+                mask = 1;
                 if(position_index == pair_size){
                     ++NUM;
                     --position_index;
+                    goto init;
                 }
-                break;
+                goto init;
             }
         }
-        if(std::bitset<9>(mask) == max){
-            row_data[m] &= ~pizza[m][n];
-            col_data[n] &= ~pizza[m][n];
-            pizza[m][n] = 0;
-            --position_index;
+        --position_index;
+        if(position_index == -1){
+            out << NUM;
+            return 0;
         }
-    }while(position_index != -1);
-    std::cout << NUM;
+        goto init;
+    reset:
+        row_data[m] &= ~pizza[m][n];
+        col_data[n] &= ~pizza[m][n];
+        pizza[m][n] = 0;
+        --position_index;
+        if(position_index == -1){
+            out << NUM;
+            return 0;
+        };
+        goto init;
     return 0;
 }
