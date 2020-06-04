@@ -1,13 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <queue>
-#include <set>
 
 using namespace std;
 
-ifstream in("bucket.inp");
-ofstream out("bucket.out");
+ifstream in("1.inp");
+ofstream out("marathon.out");
 
 int BUCKET_NUM;
 int BUCKET_V[6];//capacity
