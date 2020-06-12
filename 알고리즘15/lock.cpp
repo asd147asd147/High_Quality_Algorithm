@@ -1,109 +1,177 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <vector>
-#include <list>
-#include <tuple>
-#include <set>
+#include <string.h>
+#include <queue>
+#include <utility>
 
 using namespace std;
-# define INF 1e9
 
-ifstream in("marathon.inp");
-ofstream out("marathon.out");
+ifstream in("test.inp");
+ofstream out("lock.out");
 
-typedef struct _Edge {
-    int u,v,weight;
-} Edge;
+int maze[31][31];
+int visit[31][31];
+int N,M;
+pair<int,int> S, T;
+queue<pair<int,int>> path;
+queue<vector<pair<int,int>>> memo;
+vector<pair<int,int>> res;
 
-bool operator==(Edge e1, Edge e2) {
-    return e1.u==e2.u && e1.v==e2.v && e1.weight==e2.weight;
-}
-
-class Graph {
-  public :
-    int V ;
-    list < tuple <int, int > >*adj;
-    vector < Edge > edge;
-
-    Graph( int V ) {
-        this->V = V ;
-        adj = new list < tuple <int, int > >[V];
-    }
-
-    void addEdge ( int u, int v, int w ) {
-        if(v < u) {
-            int t = u;
-            u = v;
-            v = t;
-        }
-        adj[u].push_back( make_tuple( v, w ));
-        adj[v].push_back( make_tuple( u, w ));
-
-        Edge e { u, v, w };
-        if(find(edge.begin(),edge.end(),e)==edge.end()) {
-            edge.push_back(e);
-        }
-    }
-
-    void removeEdge ( int u, int v, int w ) {
-        adj[u].remove(make_tuple( v, w ));
-        adj[v].remove(make_tuple( u, w ));
-    }
-
-    int  ShortestPath ( int u, int v ) {
-        set< tuple<int, int> > s;
-        vector<int> dist(V, INF);
-        s.insert(make_tuple(0, u));
-        dist[u] = 0;
-        while (!s.empty()) {
-            tuple<int, int> tmp = *(s.begin());
-            s.erase(s.begin());
-
-            int u = get<1>(tmp);
-            for (auto i = adj[u].begin(); i != adj[u].end(); ++i) {
-                int v = get<0>(*i);
-                int weight = get<1>(*i);
-                if (dist[v] > dist[u] + weight) {
-                    if (dist[v] != INF)
-                        s.erase(s.find(make_tuple(dist[v], v)));
-                    dist[v] = dist[u] + weight;
-                    s.insert(make_tuple(dist[v], v));
-                }
+void input_data() {
+    in >> N >> M;
+    char temp;
+    vector<pair<int,int>> t;
+    for(int i = N; i >= 1; i--) {
+        for(int j = 1; j <= M; ++j) {
+            in >> temp;
+            switch(temp) {
+            case '#':
+                maze[i][j] = 0;
+                break;
+            case '_':
+                maze[i][j] = 1;
+                break;
+            case 'S':
+                maze[i][j] = 2;
+                S = make_pair(i,j);
+                path.push(S);
+                t.push_back(S);
+                memo.push(t);
+                break;
+            case 'T':
+                maze[i][j] = 3;
+                T = make_pair(i,j);
+                break;
             }
         }
-        return dist[v] ;
     }
+}
 
-    int FindMinimumCycle () {
-        int min_cycle = INF;
-        int E = edge.size();
-        for ( int i = 0 ; i < E ; i++ ) {
-            Edge e = edge[i];
-            removeEdge( e.u, e.v, e.weight ) ;
-            int distance = ShortestPath( e.u, e.v );
-            min_cycle = min( min_cycle, distance + e.weight );
-            addEdge( e.u, e.v, e.weight );
+void find_path(){
+    while(!path.empty()){
+        if(path.front() == T)
+            return;
+        int i = path.front().first;
+        int j = path.front().second;
+        if(visit[i][j] == 1){
+            path.pop();
+            memo.pop();
+            continue;
         }
-        return min_cycle ;
+        vector<pair<int,int>> t;
+        t = memo.front();
+        t.push_back(make_pair(0,0));
+        visit[i][j] = 1;
+        if(maze[i+1][j]!=0 && visit[i+1][j] == 0){
+            path.push(make_pair(i+1,j));
+            *(t.end()-1) = make_pair(i+1,j);
+            memo.push(t);
+        }
+        if(maze[i][j+1]!=0 && visit[i][j+1] == 0){
+            path.push(make_pair(i,j+1));
+            *(t.end()-1) = make_pair(i,j+1);
+            memo.push(t);
+        }
+        if(maze[i-1][j]!=0 && visit[i-1][j] == 0){
+            path.push(make_pair(i-1,j));
+            *(t.end()-1) = make_pair(i-1,j);
+            memo.push(t);
+        }
+        if(maze[i][j-1]!=0 && visit[i][j-1] == 0){
+            path.push(make_pair(i,j-1));
+            *(t.end()-1) = make_pair(i,j-1);
+            memo.push(t);
+        }
+        path.pop();
+        memo.pop();
     }
-};
+}
+
+void init_visit(){
+    for(int i = 1; i <= N; ++i){
+        for(int j = 1; j <= M; ++j){
+            visit[i][j] = 0;
+        }
+    }
+}
+
+int check_cut(){
+    queue<pair<int,int>> p;
+    p.push(S);
+    while(!p.empty()){
+        if(p.front() == T)
+            return 0;
+
+        int i = p.front().first;
+        int j = p.front().second;
+        if(visit[i][j] == 1){
+            p.pop();
+            continue;
+        }
+        visit[i][j] = 1;
+        if(maze[i+1][j]!=0 && visit[i+1][j] == 0){
+            p.push(make_pair(i+1,j));
+        }
+        if(maze[i][j+1]!=0 && visit[i][j+1] == 0){
+            p.push(make_pair(i,j+1));
+        }
+        if(maze[i-1][j]!=0 && visit[i-1][j] == 0){
+            p.push(make_pair(i-1,j));
+        }
+        if(maze[i][j-1]!=0 && visit[i][j-1] == 0){
+            p.push(make_pair(i,j-1));
+        }
+        p.pop();
+    }
+    return 1;
+}
+
+void find_cut(){
+    vector<pair<int,int>> short_path;
+    short_path = memo.front();
+    int sz = short_path.size();
+    if(sz == 0)
+        return;
+    for(int i = 1; i < sz-1; ++i){
+        init_visit();
+        maze[short_path[i].first][short_path[i].second] = 0;
+        if(check_cut()){
+            res.push_back(short_path[i]);
+        }
+        maze[short_path[i].first][short_path[i].second] = 1;
+    }
+}
+
+void output_data(){
+    if(res.size() == 0){
+        out << 0;
+        return;
+    }
+    out << res.size() << endl;
+    sort(res.begin(),res.end());
+    for(int i = 0; i < res.size(); ++i){
+        out << res[i].second <<" "<<res[i].first << endl;
+    }
+}
 
 int main() {
-    int V;
-    in >> V;
-    Graph g(V);
-    int vertex_num;
-    for(int i = 0; i < V; ++i) {
-        in >> vertex_num;
-        int node_num, weight;
-        in >> node_num;
-        while(node_num!=0) {
-            in >> weight;
-            g.addEdge(vertex_num-1,node_num-1,weight);
-            in >> node_num;
+    input_data();
+    find_path();
+    find_cut();
+    output_data();
+    for(int i = 0; i <= N+1; ++i) {
+        for(int j = 0; j <= M+1; ++j) {
+            cout << maze[i][j];
         }
+        cout << endl;
     }
-    out << g.FindMinimumCycle();
+    cout << "S x,y" <<endl;
+    cout << S.first << " " << S.second << endl;
+    cout << "T x,y" <<endl;
+    cout << T.first << " " << T.second << endl;
+
+//    for(auto s : memo.front())
+//        cout << s.second << " " << s.first<< endl;
     return 0;
 }
