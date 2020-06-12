@@ -129,6 +129,8 @@ int check_cut(){
 
 void find_cut(){
     vector<pair<int,int>> short_path;
+    if(memo.size() == 0)
+        return;
     short_path = memo.front();
     int sz = short_path.size();
     if(sz == 0)
