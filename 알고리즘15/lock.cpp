@@ -7,7 +7,7 @@
 
 using namespace std;
 
-ifstream in("test.inp");
+ifstream in("lock.inp");
 ofstream out("lock.out");
 
 int maze[31][31];
@@ -143,13 +143,25 @@ void find_cut(){
     }
 }
 
+bool cmp(const pair<int,int>& t1, const pair<int,int>& t2){
+    if(t2.second < t1.second){
+        return 0;
+    }
+    else if(t2.second == t1.second){
+        if(t2.first < t1.first){
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void output_data(){
     if(res.size() == 0){
         out << 0;
         return;
     }
     out << res.size() << endl;
-    sort(res.begin(),res.end());
+    sort(res.begin(),res.end(),cmp);
     for(int i = 0; i < res.size(); ++i){
         out << res[i].second <<" "<<res[i].first << endl;
     }
@@ -160,16 +172,16 @@ int main() {
     find_path();
     find_cut();
     output_data();
-    for(int i = 0; i <= N+1; ++i) {
-        for(int j = 0; j <= M+1; ++j) {
-            cout << maze[i][j];
-        }
-        cout << endl;
-    }
-    cout << "S x,y" <<endl;
-    cout << S.first << " " << S.second << endl;
-    cout << "T x,y" <<endl;
-    cout << T.first << " " << T.second << endl;
+//    for(int i = 0; i <= N+1; ++i) {
+//        for(int j = 0; j <= M+1; ++j) {
+//            cout << maze[i][j];
+//        }
+//        cout << endl;
+//    }
+//    cout << "S x,y" <<endl;
+//    cout << S.first << " " << S.second << endl;
+//    cout << "T x,y" <<endl;
+//    cout << T.first << " " << T.second << endl;
 
 //    for(auto s : memo.front())
 //        cout << s.second << " " << s.first<< endl;
